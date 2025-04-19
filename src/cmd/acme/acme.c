@@ -37,11 +37,7 @@ enum{
 };
 Rune	snarfrune[NSnarf+1];
 
-char		*fontnames[2] =
-{
-	"/lib/font/bit/lucsans/euro.8.font",
-	"/lib/font/bit/lucm/unicode.9.font"
-};
+char *fontnames[2] = {nil, nil};
 
 Command *command;
 
@@ -125,8 +121,19 @@ threadmain(int argc, char *argv[])
 		threadexitsall("usage");
 	}ARGEND
 
-	fontnames[0] = estrdup(fontnames[0]);
-	fontnames[1] = estrdup(fontnames[1]);
+	if(fontnames[0] != nil)
+		fontnames[0] = estrdup(fontnames[0]);
+	else{
+		fontnames[0] = getenv("font");
+
+		if(fontnames[0] == nil)
+			fontnames[0] = estrdup("/lib/font/bit/lucsans/euro.8.font");
+	}
+
+	if(fontnames[1] != nil)
+		fontnames[1] = estrdup(fontnames[1]);
+	else
+		fontnames[1] = estrdup("/lib/font/bit/lucm/unicode.9.font");
 
 	quotefmtinstall();
 	fmtinstall('t', timefmt);
