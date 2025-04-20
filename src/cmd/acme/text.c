@@ -691,7 +691,7 @@ texttype(Text *t, Rune r)
 		if(t->q1 < t->file->b.nc)
 			textshow(t, t->q1+1, t->q1+1, TRUE);
 		return;
-	case Kdown:
+	case 0x0e: case Kdown:
 		if(t->what == Tag)
 			goto Tagdown;
 
@@ -726,7 +726,7 @@ texttype(Text *t, Rune r)
 		q0 = t->org+frcharofpt(&t->fr, Pt(t->fr.r.min.x, t->fr.r.min.y+n*t->fr.font->height));
 		textsetorigin(t, q0, TRUE);
 		return;
-	case Kup:
+	case 0x10: case Kup:
 		if(t->what == Tag)
 			goto Tagup;
 
@@ -757,7 +757,7 @@ texttype(Text *t, Rune r)
 		q0 = textbacknl(t, t->org, n);
 		textsetorigin(t, q0, TRUE);
 		return;
-	case Khome: /* beginning of line */
+	case 0x01: case Khome: /* beginning of line */
 		typecommit(t);
 		/* go to where ^U would erase, if not already at BOL */
 		nnb = 0;
@@ -765,7 +765,7 @@ texttype(Text *t, Rune r)
 			nnb = textbswidth(t, 0x15);
 		textshow(t, t->q0-nnb, t->q0-nnb, TRUE);
 		return;
-	case Kend: /* end of line */
+	case 0x05: case Kend: /* end of line */
 		typecommit(t);
 		q0 = t->q0;
 		while(q0<t->file->b.nc && textreadc(t, q0)!='\n')
