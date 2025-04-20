@@ -664,6 +664,26 @@ textcomplete(Text *t)
 	return rp;
 }
 
+static Rune lparen[] = { '{', '[', '(', '<', 0xab, 0 };
+static Rune rparen[] = { '}', ']', ')', '>', 0xbb, 0 };
+static Rune quote1[] = { '\n', 0 };
+static Rune quote2[] = { '\'', '"', '`', 0 };
+
+static
+Rune *left[] = {
+	lparen,
+	quote1,
+	quote2,
+	nil
+};
+static
+Rune *right[] = {
+	rparen,
+	quote1,
+	quote2,
+	nil
+};
+
 void
 texttype(Text *t, Rune r)
 {
@@ -681,6 +701,23 @@ texttype(Text *t, Rune r)
 	nr = 1;
 	rp = &r;
 	switch(r){
+	case 0x0f:
+		typecommit(t);
+
+		if(t->q1 > 0)
+		for(q1 = t->q1; q1<t->file->b.nc; q1++){
+			rp = runestrchr(rparen, textreadc(t, q1));
+			if(rp != nil){
+				q0 = q1;
+				if(textclickmatch(t, *rp, lparen[rp-rparen], -1, &q0)){
+					if (q0 < t->q0) {
+						textshow(t, q0 + 1, q1, TRUE);
+						return;
+					}
+				}
+			}
+		}
+		return;
 	case 0x02: case Kleft:
 		typecommit(t);
 		if(t->q0 > 0)
@@ -1402,26 +1439,6 @@ textselect3(Text *t, uint *q0, uint *q1)
 	h = (textselect23(t, q0, q1, but3col, 1|2) == 0);
 	return h;
 }
-
-static Rune left1[] =  { '{', '[', '(', '<', 0xab, 0 };
-static Rune right1[] = { '}', ']', ')', '>', 0xbb, 0 };
-static Rune left2[] =  { '\n', 0 };
-static Rune left3[] =  { '\'', '"', '`', 0 };
-
-static
-Rune *left[] = {
-	left1,
-	left2,
-	left3,
-	nil
-};
-static
-Rune *right[] = {
-	right1,
-	left2,
-	left3,
-	nil
-};
 
 void
 textdoubleclick(Text *t, uint *q0, uint *q1)
