@@ -904,6 +904,18 @@ texttype(Text *t, Rune r)
 		q0 = t->q1;
 		q1 = q0 + nnb;
 		goto Erase;
+	case 0x0b: /* C-k */
+		typecommit(t);
+		nnb = 0;
+		if(t->q0 > 0 && textreadc(t, t->q0-1)!='\n')
+			nnb = textbswidth(t, 0x15);
+		q0 = t->q0 - nnb;
+
+		for(q1 = t->q1; q1<t->file->b.nc && textreadc(t, q1)!='\n'; q1++);
+		if(q1<t->file->b.nc) q1++; /* remove next LF if possible */
+
+		nnb = q1 - q0;
+		goto Erase;
 	case 0x08: /* ^H: erase character */
 	case 0x15: /* ^U: erase line */
 	case 0x17: /* ^W: erase word */
