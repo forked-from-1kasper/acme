@@ -701,11 +701,11 @@ texttype(Text *t, Rune r)
 	nr = 1;
 	rp = &r;
 	switch(r){
-	case 0x18:
+	case 0x18: /* C-x */
 		typecommit(t);
 		execute(t, t->q0, t->q1, FALSE, nil);
 		return;
-	case 0x0f:
+	case 0x0f: /* C-o */
 		typecommit(t);
 
 		if(t->q1 > 0)
@@ -722,17 +722,17 @@ texttype(Text *t, Rune r)
 			}
 		}
 		return;
-	case 0x02: case Kleft:
+	case 0x02: /* C-b */ case Kleft:
 		typecommit(t);
 		if(t->q0 > 0)
 			textshow(t, t->q0-1, t->q0-1, TRUE);
 		return;
-	case 0x06: case Kright:
+	case 0x06: /* C-f */ case Kright:
 		typecommit(t);
 		if(t->q1 < t->file->b.nc)
 			textshow(t, t->q1+1, t->q1+1, TRUE);
 		return;
-	case 0x0e: case Kdown:
+	case 0x0e: /* C-n */ case Kdown:
 		if(t->what == Tag)
 			goto Tagdown;
 
@@ -745,7 +745,7 @@ texttype(Text *t, Rune r)
 		for(q1 = t->q1; q1<t->file->b.nc && textreadc(t, q1)!='\n'; q1++);
 
 		if(q1<t->file->b.nc){
-			q1++; // move to the next line
+			q1++; /* move to the next line */
 
 			while(q1<t->file->b.nc && textreadc(t, q1)!='\n' && nnb > 0){
 				nnb--;
@@ -767,7 +767,7 @@ texttype(Text *t, Rune r)
 		q0 = t->org+frcharofpt(&t->fr, Pt(t->fr.r.min.x, t->fr.r.min.y+n*t->fr.font->height));
 		textsetorigin(t, q0, TRUE);
 		return;
-	case 0x10: case Kup:
+	case 0x10: /* C-p */ case Kup:
 		if(t->what == Tag)
 			goto Tagup;
 
@@ -779,7 +779,7 @@ texttype(Text *t, Rune r)
 
 		q0 = t->q0 - nnb;
 		if(q0 > 0){
-			nb = --q0; // end of the previous line
+			nb = --q0; /* end of the previous line */
 			while(q0 > 0 && textreadc(t, q0-1)!='\n')
 				q0--;
 
@@ -798,7 +798,7 @@ texttype(Text *t, Rune r)
 		q0 = textbacknl(t, t->org, n);
 		textsetorigin(t, q0, TRUE);
 		return;
-	case 0x01: case Khome: /* beginning of line */
+	case 0x01: /* C-a */ case Khome: /* beginning of line */
 		typecommit(t);
 		/* go to where ^U would erase, if not already at BOL */
 		nnb = 0;
@@ -806,7 +806,7 @@ texttype(Text *t, Rune r)
 			nnb = textbswidth(t, 0x15);
 		textshow(t, t->q0-nnb, t->q0-nnb, TRUE);
 		return;
-	case 0x05: case Kend: /* end of line */
+	case 0x05: /* C-e */ case Kend: /* end of line */
 		typecommit(t);
 		q0 = t->q0;
 		while(q0<t->file->b.nc && textreadc(t, q0)!='\n')
@@ -885,7 +885,7 @@ texttype(Text *t, Rune r)
 			return;
 		nr = runestrlen(rp);
 		break;	/* fall through to normal insertion case */
-	case 0x1B:
+	case 0x1B: /* ESC */
 		if(t->eq0 != ~0) {
 			if(t->eq0 <= t->q0)
 				textsetselect(t, t->eq0, t->q0);
@@ -896,7 +896,7 @@ texttype(Text *t, Rune r)
 			typecommit(t);
 		t->iq1 = t->q0;
 		return;
-	case 0x04: case Kdel:
+	case 0x04: /* C-d */ case Kdel:
 		if(t->q1 == t->file->b.nc)
 			return;
 		typecommit(t);
@@ -904,9 +904,9 @@ texttype(Text *t, Rune r)
 		q0 = t->q1;
 		q1 = q0 + nnb;
 		goto Erase;
-	case 0x08:	/* ^H: erase character */
-	case 0x15:	/* ^U: erase line */
-	case 0x17:	/* ^W: erase word */
+	case 0x08: /* ^H: erase character */
+	case 0x15: /* ^U: erase line */
+	case 0x17: /* ^W: erase word */
 		if(t->q0 == 0)	/* nothing to erase */
 			return;
 		nnb = textbswidth(t, r);
