@@ -701,6 +701,10 @@ texttype(Text *t, Rune r)
 	nr = 1;
 	rp = &r;
 	switch(r){
+	case 0x18:
+		typecommit(t);
+		execute(t, t->q0, t->q1, FALSE, nil);
+		return;
 	case 0x0f:
 		typecommit(t);
 
