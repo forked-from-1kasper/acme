@@ -694,8 +694,25 @@ texttype(Text *t, Rune r)
 	case Kdown:
 		if(t->what == Tag)
 			goto Tagdown;
-		n = t->fr.maxlines/3;
-		goto case_Down;
+
+		typecommit(t);
+
+		nnb = 0;
+		if(t->q0 > 0 && textreadc(t, t->q0-1)!='\n')
+			nnb = textbswidth(t, 0x15);
+
+		for(q1 = t->q1; q1<t->file->b.nc && textreadc(t, q1)!='\n'; q1++);
+
+		if(q1<t->file->b.nc){
+			q1++; // move to the next line
+
+			while(q1<t->file->b.nc && textreadc(t, q1)!='\n' && nnb > 0){
+				nnb--;
+				q1++;
+			}
+			textshow(t, q1, q1, TRUE);
+		}
+		return;
 	case Kscrollonedown:
 		if(t->what == Tag)
 			goto Tagdown;
@@ -712,8 +729,23 @@ texttype(Text *t, Rune r)
 	case Kup:
 		if(t->what == Tag)
 			goto Tagup;
-		n = t->fr.maxlines/3;
-		goto case_Up;
+
+		typecommit(t);
+
+		nnb = 0;
+		if(t->q0 > 0 && textreadc(t, t->q0-1)!='\n')
+			nnb = textbswidth(t, 0x15);
+
+		q0 = t->q0 - nnb;
+		if(q0 > 0){
+			nb = --q0; // end of the previous line
+			while(q0 > 0 && textreadc(t, q0-1)!='\n')
+				q0--;
+
+			q1 = min(nb, q0 + nnb);
+			textshow(t, q1, q1, TRUE);
+		}
+		return;
 	case Kscrolloneup:
 		if(t->what == Tag)
 			goto Tagup;
