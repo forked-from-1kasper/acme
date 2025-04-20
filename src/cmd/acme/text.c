@@ -905,15 +905,12 @@ texttype(Text *t, Rune r)
 		q1 = q0 + nnb;
 		goto Erase;
 	case 0x0b: /* C-k */
+		if(t->q1 == t->file->b.nc)
+			return;
 		typecommit(t);
-		nnb = 0;
-		if(t->q0 > 0 && textreadc(t, t->q0-1)!='\n')
-			nnb = textbswidth(t, 0x15);
-		q0 = t->q0 - nnb;
-
+		q0 = t->q0;
 		for(q1 = t->q1; q1<t->file->b.nc && textreadc(t, q1)!='\n'; q1++);
-		if(q1<t->file->b.nc) q1++; /* remove next LF if possible */
-
+		if(q0 == q1 && q1<t->file->b.nc) q1++; /* remove LF if the cursor is at the end of the line */
 		nnb = q1 - q0;
 		goto Erase;
 	case 0x08: /* ^H: erase character */
