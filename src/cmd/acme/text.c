@@ -701,11 +701,11 @@ texttype(Text *t, Rune r)
 	nr = 1;
 	rp = &r;
 	switch(r){
-	case 0x13: /* C-s */
+	case 0x13: /* C-s: put */
 		typecommit(t);
 		put(t, nil, nil, XXX, XXX, nil, 0);
 		return;
-	case 0x18: /* C-x */
+	case 0x18: /* C-x: execute */
 		typecommit(t);
 		if(t->q0 == t->q1){
 			for(q0 = t->q0; q0>0 && isalnum(textreadc(t, q0-1)); q0--);
@@ -716,7 +716,7 @@ texttype(Text *t, Rune r)
 			execute(t, t->q0, t->q1, FALSE, nil);
 		}
 		return;
-	case 0x0f: /* C-o */
+	case 0x0f: /* C-o: select text between a pair of brackets */
 		typecommit(t);
 
 		if(t->q1 > 0)
@@ -733,17 +733,17 @@ texttype(Text *t, Rune r)
 			}
 		}
 		return;
-	case 0x02: /* C-b */ case Kleft:
+	case 0x02: /* C-b */ case Kleft: /* move one symbol left */
 		typecommit(t);
 		if(t->q0 > 0)
 			textshow(t, t->q0-1, t->q0-1, TRUE);
 		return;
-	case 0x06: /* C-f */ case Kright:
+	case 0x06: /* C-f */ case Kright: /* move one symbol right */
 		typecommit(t);
 		if(t->q1 < t->file->b.nc)
 			textshow(t, t->q1+1, t->q1+1, TRUE);
 		return;
-	case 0x0e: /* C-n */ case Kdown:
+	case 0x0e: /* C-n: move to the next line */ case Kdown:
 		if(t->what == Tag)
 			goto Tagdown;
 
@@ -778,7 +778,7 @@ texttype(Text *t, Rune r)
 		q0 = t->org+frcharofpt(&t->fr, Pt(t->fr.r.min.x, t->fr.r.min.y+n*t->fr.font->height));
 		textsetorigin(t, q0, TRUE);
 		return;
-	case 0x10: /* C-p */ case Kup:
+	case 0x10: /* C-p: move to the previous line */ case Kup:
 		if(t->what == Tag)
 			goto Tagup;
 
@@ -896,7 +896,7 @@ texttype(Text *t, Rune r)
 			return;
 		nr = runestrlen(rp);
 		break;	/* fall through to normal insertion case */
-	case 0x1B: /* ESC */
+	case 0x1b: /* ESC */
 		if(t->eq0 != ~0) {
 			if(t->eq0 <= t->q0)
 				textsetselect(t, t->eq0, t->q0);
@@ -907,7 +907,7 @@ texttype(Text *t, Rune r)
 			typecommit(t);
 		t->iq1 = t->q0;
 		return;
-	case 0x04: /* C-d */ case Kdel:
+	case 0x04: /* C-d */ case Kdel: /* delete symbol to the right of the cursor */
 		if(t->q1 == t->file->b.nc)
 			return;
 		typecommit(t);
@@ -915,7 +915,7 @@ texttype(Text *t, Rune r)
 		q0 = t->q1;
 		q1 = q0 + nnb;
 		goto Erase;
-	case 0x0b: /* C-k */
+	case 0x0b: /* C-k: delete line to the right of the cursor */
 		if(t->q1 == t->file->b.nc)
 			return;
 		typecommit(t);
@@ -924,9 +924,9 @@ texttype(Text *t, Rune r)
 		if(q0 == q1 && q1<t->file->b.nc) q1++; /* remove LF if the cursor is at the end of the line */
 		nnb = q1 - q0;
 		goto Erase;
-	case 0x08: /* ^H: erase character */
-	case 0x15: /* ^U: erase line */
-	case 0x17: /* ^W: erase word */
+	case 0x08: /* BCK: erase character */
+	case 0x15: /* C-u: erase line to the left of the cursor */
+	case 0x17: /* C-w: erase word */
 		if(t->q0 == 0)	/* nothing to erase */
 			return;
 		nnb = textbswidth(t, r);
