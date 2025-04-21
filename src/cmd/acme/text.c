@@ -705,10 +705,6 @@ texttype(Text *t, Rune r)
 		typecommit(t);
 		put(t, nil, nil, XXX, XXX, nil, 0);
 		return;
-	case 0x18: /* C-x: execute */
-		typecommit(t);
-		execute(t, t->q0, t->q1, FALSE, nil);
-		return;
 	case 0x0f: /* C-o: select text between a pair of brackets */
 		typecommit(t);
 

@@ -281,6 +281,14 @@ rowtype(Row *row, Rune r, Point p)
 	else
 		t = rowwhich(row, p);
 	if(t!=nil && !(t->what==Tag && ptinrect(p, t->scrollr))){
+		if(r == 0x18){ /* C-x: execute */
+			textcommit(t, TRUE);
+			execute(t, t->q0, t->q1, FALSE, nil);
+
+			qunlock(&row->lk);
+			return nil; /* so that C-x on “Del” will not segfault */
+		}
+
 		w = t->w;
 		if(w == nil)
 			texttype(t, r);
