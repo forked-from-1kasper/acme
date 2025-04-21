@@ -707,7 +707,14 @@ texttype(Text *t, Rune r)
 		return;
 	case 0x18: /* C-x */
 		typecommit(t);
-		execute(t, t->q0, t->q1, FALSE, nil);
+		if(t->q0 == t->q1){
+			for(q0 = t->q0; q0>0 && isalnum(textreadc(t, q0-1)); q0--);
+			for(q1 = t->q1; q1<t->file->b.nc && isalnum(textreadc(t, q1)); q1++);
+
+			execute(t, q0, q1, FALSE, nil);
+		}else{
+			execute(t, t->q0, t->q1, FALSE, nil);
+		}
 		return;
 	case 0x0f: /* C-o */
 		typecommit(t);
@@ -718,7 +725,7 @@ texttype(Text *t, Rune r)
 			if(rp != nil){
 				q0 = q1;
 				if(textclickmatch(t, *rp, lparen[rp-rparen], -1, &q0)){
-					if (q0 < t->q0) {
+					if(q0 < t->q0){
 						textshow(t, q0 + 1, q1, TRUE);
 						return;
 					}
