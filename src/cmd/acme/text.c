@@ -707,14 +707,7 @@ texttype(Text *t, Rune r)
 		return;
 	case 0x18: /* C-x: execute */
 		typecommit(t);
-		if(t->q0 == t->q1){
-			for(q0 = t->q0; q0>0 && isalnum(textreadc(t, q0-1)); q0--);
-			for(q1 = t->q1; q1<t->file->b.nc && isalnum(textreadc(t, q1)); q1++);
-
-			execute(t, q0, q1, FALSE, nil);
-		}else{
-			execute(t, t->q0, t->q1, FALSE, nil);
-		}
+		execute(t, t->q0, t->q1, FALSE, nil);
 		return;
 	case 0x0f: /* C-o: select text between a pair of brackets */
 		typecommit(t);
