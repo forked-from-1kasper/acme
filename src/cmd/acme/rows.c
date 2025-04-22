@@ -281,7 +281,20 @@ rowtype(Row *row, Rune r, Point p)
 	else
 		t = rowwhich(row, p);
 	if(t!=nil && !(t->what==Tag && ptinrect(p, t->scrollr))){
-		if(r == 0x18){ /* C-x: execute */
+		switch(r) {
+		case 0x12: /* C-r: search backward / plumb */
+			textcommit(t, TRUE);
+			look3(t, t->q0, t->q1, FALSE, TRUE);
+
+			qunlock(&row->lk);
+			return nil;
+		case 0x14: /* C-t: search forward / plumb */
+			textcommit(t, TRUE);
+			look3(t, t->q0, t->q1, FALSE, FALSE);
+
+			qunlock(&row->lk);
+			return nil;
+		case 0x18: /* C-x: execute */
 			textcommit(t, TRUE);
 			execute(t, t->q0, t->q1, FALSE, nil);
 
