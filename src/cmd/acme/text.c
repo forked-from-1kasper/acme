@@ -692,6 +692,7 @@ texttype(Text *t, Rune r)
 	int nr;
 	Rune *rp;
 	Text *u;
+	Rectangle br;
 
 	if(t->what!=Body && t->what!=Tag && r=='\n')
 		return;
@@ -701,6 +702,42 @@ texttype(Text *t, Rune r)
 	nr = 1;
 	rp = &r;
 	switch(r){
+	case 0x19: /* C-y: warp mouse cursor between tag and body */
+		typecommit(t);
+
+		if(t->what == Tag)
+			u = &t->w->body;
+		else if(t->what == Body)
+			u = &t->w->tag;
+		else
+			u = nil;
+
+		if (u != nil)
+			moveto(mousectl, addpt(frptofchar(&u->fr, u->fr.p0), Pt(4, u->fr.font->height-4)));
+		return;
+	case 0x07: /* C-g: warp mouse to the next window */
+		typecommit(t);
+
+		if(t->what == Tag || t->what == Body){
+			for(i = 0; t->col->w[i] != t->w; i++);
+
+			u = &t->col->w[(i + 1) % t->col->nw]->body;
+			moveto(mousectl, addpt(frptofchar(&u->fr, u->fr.p0), Pt(4, u->fr.font->height-4)));
+		}
+		return;
+	case 0x0c: /* C-l: warp mouse to the next column */
+		typecommit(t);
+
+		if(t->what == Tag || t->what == Body){
+			for(i = 0; t->row->col[i] != t->col; i++);
+
+			do i = (i + 1) % t->row->ncol;
+			while(t->row->col[i] != t->col && t->row->col[i]->nw <= 0);
+
+			br = t->row->col[i]->r;
+			moveto(mousectl, Pt((br.min.x + br.max.x) / 2, mouse->xy.y));
+		}
+		return;
 	case 0x13: /* C-s: put */
 		typecommit(t);
 		put(t, nil, nil, XXX, XXX, nil, 0);
