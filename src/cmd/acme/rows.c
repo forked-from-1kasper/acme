@@ -295,8 +295,20 @@ rowtype(Row *row, Rune r, Point p)
 			qunlock(&row->lk);
 			return nil;
 		case 0x18: /* C-x: execute */
-			textcommit(t, TRUE);
+			w = t->w;
+
+			if(w)
+				winlock(w, 'K');
+
+			if(w)
+				wincommit(w, t);
+			else
+				textcommit(t, TRUE);
+
 			execute(t, t->q0, t->q1, FALSE, nil);
+
+			if(w)
+				winunlock(w);
 
 			qunlock(&row->lk);
 			return nil; /* so that C-x on “Del” will not segfault */
