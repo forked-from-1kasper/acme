@@ -820,6 +820,10 @@ out:
 			wincleartag(w);
 			settag = TRUE;
 			m = 8;
+		}else
+		if(strncmp(p, "scratch", 7) == 0){
+			w->isscratch = TRUE;
+			m = 7;
 		}else{
 			err = Ebadctl;
 			break;
